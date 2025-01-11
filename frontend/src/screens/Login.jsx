@@ -1,14 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
+import { Link,useNavigate } from 'react-router-dom';
+import axios from '../config/axios';
+import { UserContext } from '../context/user.context';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const {setUser } = useContext(UserContext);
+const navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle login logic (e.g., API call)
-    console.log('Email:', email);
-    console.log('Password:', password);
+    axios.post('/users/login',{
+      email,
+      password
+    }).then((res)=>{
+      console.log(res.data)
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
+      navigate('/')
+    }).catch((err) =>{
+      console.log(err.response.data)
+    })
   };
 
   return (
@@ -52,7 +65,7 @@ const Login = () => {
           </div>
         </form>
         <p className="mt-4 text-center text-sm">
-          Don't have an account? <a href="/signup" className="text-blue-500 hover:underline">Sign Up</a>
+          Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Register</Link>
         </p>
       </div>
     </div>

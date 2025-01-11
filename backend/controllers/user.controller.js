@@ -14,6 +14,7 @@ export const createUserController = async (req, res) => {
     try {
         const user = await userService.createUser(req.body);
         const token = user.generateJWT(); 
+        delete user._doc.password;
         res.status(201).send({ user, token });
     } catch (error) {
         res.status(400).send({ error: error.message });
@@ -28,6 +29,8 @@ export const loginUserController = async (req, res) => {
     try {
         const user = await userService.loginUser(req.body);
         const token = user.generateJWT(); 
+        delete user._doc.password;
+
         res.status(200).send({ user, token });
     } catch (error) {
         res.status(400).send({ error: error.message });
@@ -54,3 +57,36 @@ export const logoutController = async (req,res) => {
         res.status(500).send({ error: "Internal Server Error" });
     }
 };
+
+
+export const deleteuserController = async (req,res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const user = await userService.deleteUser(req.body);
+        const token = user.generateJWT(); 
+        delete user._doc.password;
+
+        res.status(200).send({ user, token });
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+}
+
+export const showalluserController = async (req,res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const user = await userService.showAllUsers(req.body);
+        const token = user.generateJWT(); 
+        delete user._doc.password;
+
+        res.status(200).send({ user, token });
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+}

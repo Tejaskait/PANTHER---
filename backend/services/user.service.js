@@ -14,6 +14,8 @@ export const createUser = async ({
         email,
         password: hashPassword,
     })
+
+
     return user;
 }
 
@@ -40,4 +42,22 @@ export const profileUser = async ({ email, password }) =>{
     const user = await userModel.findById({email,password})
 
     return user;
+}
+
+export const deleteUser = async ({ email, password }) =>{
+    if(!email || !password) {
+        throw new Error("wrong profile");
+    }
+    const user = await userModel.findOneAndDelete({email,password})
+    return user;
+    
+    
+}
+
+export const showAllUsers = async ({ email, password }) =>{
+    if(!email ||!password) {
+        throw new Error("wrong profile");
+        }
+        const users = await userModel.find({})
+        return users;
 }
