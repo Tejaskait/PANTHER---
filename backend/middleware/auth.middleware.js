@@ -7,7 +7,7 @@ import client from "../services/redis.service.js";
         if (!token) {
             return res.status(401).send({ error: "Not authorized, token is missing" });
         }
-        const isBlocked= await client.getAsync(token)
+        const isBlocked= await client.get(token)
 
         if(isBlocked){
             res.cookie('token','')
