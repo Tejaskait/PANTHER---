@@ -61,3 +61,10 @@ export const showAllUsers = async ({ email, password }) =>{
         const users = await userModel.find({})
         return users;
 }
+
+export const getAllUsers = async ({ userId }) => {
+    const users = await userModel.find({
+        _id: { $ne: userId }
+    });
+    return users;
+}

@@ -75,18 +75,17 @@ export const deleteuserController = async (req,res) => {
     }
 }
 
-export const showalluserController = async (req,res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+export const getAllUsersController = async (req, res) => {
     try {
-        const user = await userService.showAllUsers(req.body);
-        const token = user.generateJWT(); 
-        delete user._doc.password;
-
-        res.status(200).send({ user, token });
-    } catch (error) {
-        res.status(400).send({ error: error.message });
+        const loggedInUser = await userModel.findOne({
+            email: req.user.email
+        })
+        const allUsers = await userService.getAllUsers({ userId: loggedInUser._id });
+        return res.status(200).json({
+            users: allUsers
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
     }
 }
