@@ -2,6 +2,9 @@ import http from 'http';
 import app from './app.js';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import projectModel from './models/project.model.js';
+import { generateResult } from './services/ai.service.js';
 
 import { Server } from 'socket.io';
 
@@ -13,9 +16,15 @@ const io = new Server(server, {
       origin: '*'
   }
 });
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   try {
       const token = socket.handshake.auth?.token || socket.handshake.headers.authorization?.split(' ')[ 1 ];
+      const projectId = socket.handshake.query.projectId;
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+          return next(new Error('Invalid projectId'));
+      }
+      socket.project = await projectModel.findById(projectId);
+
       if (!token) {
           return next(new Error('Authentication error'))
       }
@@ -31,11 +40,21 @@ io.use((socket, next) => {
 })
 
 io.on('connection', socket => {
+  socket.roomId = socket.project._id.toString()
+
     console.log('a user connected');
-    socket.on('event', data => { /* … */ });
-    socket.on('disconnect', () => { /* … */ });
+    socket.join(socket.roomId);
+    socket.on('project-message', data => {
+      socket.broadcast.to(socket.roomId).emit('project-message', data)
+    })
+
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+      socket.leave(socket.roomId)
+  });
 });
 server.listen(port, ()=>{
   console.log(`Server is running on port ${port}`);  // Display server running message
 })
 
+//
