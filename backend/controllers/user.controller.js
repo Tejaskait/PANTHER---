@@ -1,4 +1,4 @@
-import user from "../models/user.model.js";
+import userModel from "../models/user.model.js";
 import client from "../services/redis.service.js";
 import * as userService from "../services/user.service.js";
 import {
